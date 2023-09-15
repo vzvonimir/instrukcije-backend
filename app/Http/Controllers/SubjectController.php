@@ -20,6 +20,15 @@ class SubjectController extends Controller
         ]);
     }
 
+    public function getSubject($id)
+    {
+        $subject = Subject::find($id);
+        if ($subject === null) {
+            return response()->json(['message' => 'Subject with the given ID was not found.'], 404);
+        }
+        return response()->json(['subject' => $subject], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */

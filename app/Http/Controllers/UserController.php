@@ -16,7 +16,26 @@ class UserController extends Controller
 
     public function updateUser(UpdateUserRequest $request){
         $user = auth()->user();
-        $user->update($request->all());
+    
+        $user->fill([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'city' => $request->city,
+            'address' => $request->address,
+            'phone' => $request->phone,
+            'description' => $request->description,
+        ]);
+    
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('profile_pictures', $fileName, 'public');
+            $user->profile_picture = $filePath;
+        }
+    
+        $user->save();
+    
         return response()->json(['message' => 'User successfully updated.', 'user' => $user], 200);
     }
 

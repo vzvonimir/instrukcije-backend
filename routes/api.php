@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +31,10 @@ Route::get('getServices', [ServiceController::class, 'index']);
 Route::get('subjects', [SubjectController::class, 'index']);
 Route::get('categories', [CategoryController::class, 'index']);
 Route::get('getService/{id}', [ServiceController::class, 'getService']);
+Route::get('getCategory/{id}', [CategoryController::class, 'getCategory']);
+Route::get('getSubject/{id}', [SubjectController::class, 'getSubject']);
+Route::post('search', [SearchController::class, 'search']);
+Route::get('filterServices', [SearchController::class, 'filterServices']);
 
 //auth
 Route::post('register', [AuthController::class, 'register']);
@@ -41,9 +48,13 @@ Route::group(['middleware' => ['auth:sanctum', 'checkAdminStudentInstructor']], 
     Route::post('updateUser', [UserController::class, 'updateUser']);
 });
 
-Route::group(['middleware' => ['auth:sanctum', 'checkInstructor']], function(){
-   
+Route::group(['middleware' => ['auth:sanctum', 'checkStudentAdmin']], function(){
+    Route::post('rateInstructor', [RatingController::class, 'store']);
+    Route::get('favorites', [FavoriteController::class, 'index']);
+    Route::post('addFavorite',[FavoriteController::class, 'store']);
+    Route::delete('removeFavorite/{instructorId}',[FavoriteController::class, 'destroy']);
 });
+
 
 Route::group(['middleware' => ['auth:sanctum', 'checkAdmin']], function(){
     Route::get('users', [UserController::class, 'users']);

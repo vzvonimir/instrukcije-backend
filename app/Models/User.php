@@ -55,4 +55,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Service::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'instructor_id');
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class, 'user_id');
+    }
 }

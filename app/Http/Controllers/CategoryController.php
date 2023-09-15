@@ -20,6 +20,15 @@ class CategoryController extends Controller
         ]);
     }
 
+    public function getCategory($id)
+    {
+        $category = Category::find($id);
+        if ($category === null) {
+            return response()->json(['message' => 'Category with the given ID was not found.'], 404);
+        }
+        return response()->json(['category' => $category], 200);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
