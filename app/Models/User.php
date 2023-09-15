@@ -8,6 +8,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Exception;
+use Mail;
+use App\Mail\ResetMail;
 
 class User extends Authenticatable
 {
@@ -64,5 +67,33 @@ class User extends Authenticatable
     public function favorites()
     {
         return $this->hasMany(Favorite::class, 'user_id');
+    }
+
+    /**
+     * Write code on Method
+     *
+     * @return response()
+     */
+    public function generateCode(User $user)
+    {
+        $key = rand(100000, 999999);
+  
+        ValidationKey::updateOrCreate(
+            [ 'user_id' => $user->id ],
+            [ 'key' => $key ]
+        );
+    
+        try {
+  
+            $details = [
+                'title' => 'Mail from Learn App, reset password code.',
+                'key' => $key
+            ];
+             
+            Mail::to($user->email)->send(new ResetMail($details));
+    
+        } catch (Exception $e) {
+            info("Error: ". $e->getMessage());
+        }
     }
 }

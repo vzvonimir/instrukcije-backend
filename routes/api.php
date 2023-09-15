@@ -39,6 +39,8 @@ Route::get('filterServices', [SearchController::class, 'filterServices']);
 //auth
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('requestValidationKey', [AuthController::class, 'requestValidationKey']);
+Route::post('resetPassword', [AuthController::class, 'resetPassword']);
 
 
 Route::group(['middleware' => ['auth:sanctum', 'checkAdminStudentInstructor']], function(){

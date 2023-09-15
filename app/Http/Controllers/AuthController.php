@@ -9,6 +9,9 @@ use App\Http\Requests\RegisterUserRequest;
 use App\Http\Requests\LoginUserRequest;
 use App\Http\Requests\ChangePasswordRequest;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ResetMailRequest;
+use App\Models\ValidationKey;
+use App\Http\Requests\ResetPasswordRequest;
 
 class AuthController extends Controller
 {
@@ -59,6 +62,31 @@ class AuthController extends Controller
     public function logout(Request $request){
         auth()->user()->tokens()->delete();
         return response()->json(['message' => 'Successfully logged out.'], 200);
+    }
+
+    public function requestValidationKey(ResetMailRequest $request){
+        $user = User::where('email', $request->email)->first();
+        if($user->status != '0'){
+            return response()->json(['message' => 'Your account is banned.'], 401);
+        }
+        $user->generateCode($user);
+        return response()->json(['message' => 'Reset code has been sent to your email address!'], 200);
+    }
+
+    public function resetPassword(ResetPasswordRequest $request){
+        $user = User::where('email', $request->email)->first();
+        $user_key = ValidationKey::where('user_id', $user->id)->first();
+        if($request->key !== $user_key->key){
+            return response()->json(['error' => 'Invalid validation key.'], 400);
+        }
+        if($user_key->isExpire()){
+            return response()->json(['error' => 'Validation key has expired.'], 401);
+        }
+        User::whereId($user->id)->update([
+            'password' => bcrypt($request->password)
+        ]);
+
+        return response()->json(['message' => 'New password set successfully!'], 200);
     }
 
 }
